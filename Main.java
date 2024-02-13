@@ -28,7 +28,7 @@ public class Main {
         System.out.printf("%d 번 글이 생성되었습니다.\n", article_count);
         article_count += 1;
       }
-      
+
       else if (cmd.equals("system exit")) {
           break;
       }
