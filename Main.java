@@ -1,10 +1,14 @@
 package com.sc;
 
+import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
 
+
 public class Main {
   private static int article_count = 1;
+  private static List<Article> articles = new ArrayList<>(); // articles 리스트 생성
 
   public static void main(String[] args) {
     System.out.println("==프로그램 시작==");
@@ -12,15 +16,24 @@ public class Main {
 
     while (true) {
       System.out.print("명령어 ) ");
+      System.out.print("사용가능 명령어[article write, article view, find article, delete article]\n");
       String cmd = sc.nextLine().trim();
       System.out.printf("입력한 명령어 : %s\n\n", cmd);
       System.out.println("종료하시려면 system exit를 입력하세요");
 
       if (cmd.equals("article write")) {
         writeArticle(sc);
-      } else if (cmd.equals("article view")) {
-        viewArticle();
-      } else if (cmd.equals("system exit")) {
+      }
+      else if (cmd.equals("article view")) {
+        viewArticle(articles);
+      }
+      else if (cmd.equals("find article")){
+        viewArticlebody(sc, articles); // viewArticlebody 메서드 호출 시 articles 리스트 전달;
+      }
+      else if (cmd.equals("delete article")){
+        deleteArticle(sc, articles); // viewArticlebody 메서드 호출 시 articles 리스트 전달;
+      }
+      else if (cmd.equals("system exit")) {
         break;
       } else {
         System.out.print("존재하지 않는 명령어 입니다.\n\n");
@@ -44,36 +57,80 @@ public class Main {
     article_count += 1;
   }
 
-  private static void viewArticle() {
-    // 여기에 게시글을 호출하여 출력하는 코드 작성
-    //게시글 리스트를 반복하며 각 게시글의 정보를 출력하는 메서드를 작성합니다.
-    //각 게시글의 정보를 출력하는 형식을 결정합니다. (예: 제목과 내용을 출력)
-    //게시글이 없는 경우에 대한 처리를 추가합니다. (예: "게시글이 없습니다." 메시지 출력)
-    //호출되면 게시글을 출력하는 메서드를 메인 메서드에 호출하는 코드를 추가합니다.
+  private static void viewArticlebody(Scanner sc, List<Article> articles) { // articles 리스트를 매개변수로 받음
+    if (articles.isEmpty()) {
+      System.out.println("게시글이 없습니다.");
+    }
+    else {
+      System.out.print("확인할 게시글의 번호를 입력하세요 ");
+      String article_id = sc.nextLine();
+      int idCheck = Integer.parseInt(article_id);
+
+      boolean found = false; // 게시글을 찾았는지 여부를 나타내는 플래그
+
+      for (Article article : articles) {
+        if (idCheck == article.getId()) {
+          System.out.printf("%d\t%s\t%s\n%s\n", article.getId(), article.getTitle(), article.getBody(), article.getCreatedAt());
+          found = true; // 게시글을 찾았으므로 플래그를 true로 설정
+          break; // 게시글을 찾았으므로 반복문을 종료
+        }
+    }
+      if (found == false) {
+      System.out.println("해당 번호의 게시글을 찾을 수 없습니다.\n");
+      }
+    }
   }
+
   private static void viewArticle(List<Article> articles) {
     if (articles.isEmpty()) {
       System.out.println("게시글이 없습니다.");
     } else {
-      System.out.println("번호\t제목\t내용");
+      System.out.println("번호\t제목\t작성시간");
       for (Article article : articles) {
-        System.out.printf("%d\t%s\t%s\n", article.getId(), article.getTitle(), article.getBody());
+        System.out.printf("%d\t%s\t%s\n", article.getId(), article.getTitle(), article.getCreatedAt());
         // \t는 각 데이터 사이에 탭을 넣어주는 역할
         // 프로그래밍에서 탭 문자는 보통 여러 개의 공백 문자와 동일한 역할을 하며, 텍스트를 보기 좋게 정렬할 때 사용됩니다. 위의 코드에서는 번호, 제목, 내용을 출력할 때 각 항목 사이에 탭 문자를 사용하여 간격을 조절
       }
     }
   }
+  private static void deleteArticle(Scanner sc, List<Article> articles){
+    if (articles.isEmpty()) {
+      System.out.println("게시글이 없습니다.");
+    }
+    else {
+      System.out.print("삭제할 게시글의 번호를 입력하세요 ");
+      String article_id = sc.nextLine();
+      int idCheck = Integer.parseInt(article_id);
+
+      boolean found = false; // 게시글을 찾았는지 여부를 나타내는 플래그
+
+      for (Article article : articles) {
+        if (idCheck == article.getId()) {
+          articles.remove(article); // 리스트에서 해당 게시글을 제거
+          System.out.println("게시글이 삭제되었습니다.");
+          found = true; // 게시글을 찾았으므로 플래그를 true로 설정
+          break; // 게시글을 찾았으므로 반복문을 종료
+        }
+      }
+      if (found == false) {
+        System.out.println("해당 번호의 게시글을 찾을 수 없습니다.\n");
+      }
+    }
+  }
+
 }
 
 class Article {
   private int id;
   private String title;
   private String body;
+  private LocalDateTime createdAt; // 작성 시간 추가
 
   public Article(int id, String title, String body) {
     this.id = id;
     this.title = title;
     this.body = body;
+    this.createdAt = LocalDateTime.now(); // 현재 시간 저장
   }
 
   public int getId() {
@@ -87,6 +144,8 @@ class Article {
   public String getBody() {
     return body;
   }
+
+  public LocalDateTime getCreatedAt() {return createdAt;}
 }
 
 //package com.sc;: 이 부분은 해당 소스 코드의 패키지 선언입니다. 패키지는 클래스를 논리적으로 그룹화하는 데 사용됩니다. 여기서 com.sc는 패키지의 이름이며, 이 코드는 com.sc 패키지에 속한 클래스임을 나타냅니다.
