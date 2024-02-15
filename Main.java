@@ -16,7 +16,7 @@ public class Main {
 
     while (true) {
       System.out.print("명령어 ) ");
-      System.out.print("사용가능 명령어[article write, article view, find article, delete article]\n");
+      System.out.print("사용가능 명령어[article write, article view, find article, delete article,change article]\n");
       String cmd = sc.nextLine().trim();
       System.out.printf("입력한 명령어 : %s\n\n", cmd);
       System.out.println("종료하시려면 system exit를 입력하세요");
@@ -32,6 +32,9 @@ public class Main {
       }
       else if (cmd.equals("delete article")){
         deleteArticle(sc, articles); // viewArticlebody 메서드 호출 시 articles 리스트 전달;
+      }
+      else if (cmd.equals("change article")){
+        changeArticle(sc, articles); // viewArticlebody 메서드 호출 시 articles 리스트 전달;
       }
       else if (cmd.equals("system exit")) {
         break;
@@ -50,7 +53,7 @@ public class Main {
     System.out.print("내용을 입력하세요 ");
     String article_text = sc.nextLine();
 
-    Article article = new Article(article_count, article_name, article_text);
+    Article article = new Article(article_count, article_name, article_text, 0);
     System.out.printf("제목 : %s\n내용 : %s\n", article.getTitle(), article.getBody());
 
     System.out.printf("%d 번 글이 생성되었습니다.\n", article_count);
@@ -74,9 +77,9 @@ public class Main {
           found = true; // 게시글을 찾았으므로 플래그를 true로 설정
           break; // 게시글을 찾았으므로 반복문을 종료
         }
-    }
+      }
       if (found == false) {
-      System.out.println("해당 번호의 게시글을 찾을 수 없습니다.\n");
+        System.out.println("해당 번호의 게시글을 찾을 수 없습니다.\n");
       }
     }
   }
@@ -87,7 +90,7 @@ public class Main {
     } else {
       System.out.println("번호\t제목\t작성시간");
       for (Article article : articles) {
-        System.out.printf("%d\t%s\t%s\n", article.getId(), article.getTitle(), article.getCreatedAt());
+        System.out.printf("%d\t%s\t%d\t%s\n", article.getId(), article.getTitle(), article.viewCount(),article.getCreatedAt());
         // \t는 각 데이터 사이에 탭을 넣어주는 역할
         // 프로그래밍에서 탭 문자는 보통 여러 개의 공백 문자와 동일한 역할을 하며, 텍스트를 보기 좋게 정렬할 때 사용됩니다. 위의 코드에서는 번호, 제목, 내용을 출력할 때 각 항목 사이에 탭 문자를 사용하여 간격을 조절
       }
@@ -98,7 +101,7 @@ public class Main {
       System.out.println("게시글이 없습니다.");
     }
     else {
-      System.out.print("삭제할 게시글의 번호를 입력하세요 ");
+      System.out.println("삭제할 게시글의 번호를 입력하세요 ");
       String article_id = sc.nextLine();
       int idCheck = Integer.parseInt(article_id);
 
@@ -117,6 +120,35 @@ public class Main {
       }
     }
   }
+  private static void changeArticle(Scanner sc, List<Article> articles){
+    if (articles.isEmpty()) {
+      System.out.println("게시글이 없습니다.");
+    }
+    else {
+      System.out.println("수정할 게시글의 번호를 입력하세요 ");
+      String article_id = sc.nextLine();
+      int idCheck = Integer.parseInt(article_id);
+
+      boolean found = false;
+
+      for (Article article : articles) {
+        if (idCheck == article.getId()){
+          System.out.println("새로운 내용을 입력해주세요.");
+          String newbody = sc.nextLine();
+
+          article.setBody(newbody); // 해당 게시글의 내용을 변경
+
+          System.out.println("게시글이 수정되었습니다.");
+          found = true;
+          break;
+        }
+      }
+      if(found==false){
+        System.out.println("해당 번호의 게시글을 찾을 수 없습니다.\n");
+      }
+    }
+
+  }
 
 }
 
@@ -125,12 +157,14 @@ class Article {
   private String title;
   private String body;
   private LocalDateTime createdAt; // 작성 시간 추가
+  private int viewcount;
 
-  public Article(int id, String title, String body) {
+  public Article(int id, String title, String body, int viewcount) {
     this.id = id;
     this.title = title;
     this.body = body;
     this.createdAt = LocalDateTime.now(); // 현재 시간 저장
+    this.viewcount = viewcount;
   }
 
   public int getId() {
@@ -142,7 +176,17 @@ class Article {
   }
 
   public String getBody() {
+    viewCount(); // 게시글 본문을 확인할 때마다 조회수 증가
     return body;
+  }
+
+  public void setBody(String body) {
+    this.body = body;
+  }
+
+  public int viewCount(){
+    this.viewcount++; // viewcount 변수를 1 증가시킴
+    return viewcount; // 증가된 viewcount 값을 반환
   }
 
   public LocalDateTime getCreatedAt() {return createdAt;}
@@ -159,3 +203,5 @@ class Article {
 //equals는 Java에서 객체의 내용이 동일한지를 비교하는 메서드입니다. 보통 문자열(String) 객체의 경우 두 문자열의 내용이 동일한지를 비교할 때 사용됩니다.
 //.trim() 은 문자열의 양 끝에 있는 공백을 제거하는 메서드입니다. 이 메서드를 사용하면 문자열에서 공백 문자(스페이스, 탭, 개행 등)이 제거됩니다.
 //String input = sc.nextLine().replace("ㅇ", ""); replace는 첫번쨰 입력받은걸 두번째 입력받은걸로 대체하는 메서드
+
+//추가할 내용
